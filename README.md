@@ -12,6 +12,8 @@
     *   userclick pooling time decay (越接近权重越大)
 *   模型：
     *   FM
+    *   Transformer
+    *   GNN
     *   预测 click 数据，丰富了item之间的交互 （multitask, pretrain）
 *   Loss：
     *   reweight loss (4种行为)
