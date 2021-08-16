@@ -38,7 +38,7 @@
 
 *   训得久一点：
 
-    *   2epoch0.001adam -> 10epoch0.001adam+10epoch0.0001adam：0.33->0.36
+    -   [x] 2epoch0.001adam -> 10epoch0.001adam+10epoch0.0001adam：0.33->0.36
 
 
 
