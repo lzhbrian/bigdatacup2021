@@ -21,14 +21,14 @@
 
 *   feature
 
-    *   价格分桶，然后每个桶做 emb
+    -   [x] 价格分桶，然后每个桶做 emb（貌似提升了一小点，不明显）
+
     *   预测 sess 多一个三个 sess (mean, sum, ...) pooling 后的 feature
     *   userclick pooling time decay (越接近权重越大)
 
 *   模型：
 
-    *   FM
-    *   Transformer
+    *   [x] Transformer（大概0.36 -> 0.365 的提升，还行，估计还能再升点，没继续训了，因为去搞multitask click了）
     *   GNN
     *   预测 click 数据，丰富了item之间的交互 （multitask, pretrain）
 
