@@ -1,10 +1,12 @@
 # README
 
-### 2021.8.16 讨论
+
+
+### ideas 
 
 *   tta
 
-    -   [x] 把同一个sess的物品打乱，然后分别过网络，再做平均
+    -   [x] 把同一个sess的物品打乱，然后分别过网络，再做平均（可带来大约 0.002 的提升，不太稳定）
 
         | aug  | buy real acc2                                                |      |
         | ---- | ------------------------------------------------------------ | ---- |
@@ -22,19 +24,23 @@
 *   feature
 
     -   [x] 价格分桶，然后每个桶做 emb（貌似提升了一小点，不明显）
+    -   [ ] 预测 sess 多一个三个 sess (mean, sum, ...) pooling 后的 feature
 
-    *   预测 sess 多一个三个 sess (mean, sum, ...) pooling 后的 feature
-    *   userclick pooling time decay (越接近权重越大)
+    -   [ ] userclick pooling time decay (越接近权重越大)
+
+    *   [ ] 考虑时间也作为feature（可能需要先做个 EDA），数据描述里说：The training data is collected across three months and includes several sales campaigns (release new items).
+    *   [ ] 用user_emb来搞？让testset也做一个click的train，然后学到的emb去predict buy。
+    *   [ ] 似乎一个user会有多条记录（3条？），然后用上面的思路来学user_emb
 
 *   模型：
 
     *   [x] Transformer（大概0.36 -> 0.365 的提升，还行，估计还能再升点，没继续训了，因为去搞multitask click了）
-    *   GNN
-    *   预测 click 数据，丰富了item之间的交互 （multitask, pretrain）
+    *   [ ] GNN（网易fuxi有发一篇paper做bundle recommendation 用gnn的，和这个场景有一丢丢类似）
+    *   [x] 预测 click 数据，丰富了item之间的交互做 multitask（0.362->0.365； 加上augorder3：0.365 -> 0.368 左右）
 
 *   Loss：
 
-    *   reweight loss (4种行为)
+    -   [ ] reweight loss（4种行为）
 
 *   训得久一点：
 
