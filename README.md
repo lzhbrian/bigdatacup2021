@@ -28,19 +28,26 @@
 
     -   [ ] userclick pooling time decay (越接近权重越大)
 
-    *   [ ] 考虑时间也作为feature（可能需要先做个 EDA），数据描述里说：The training data is collected across three months and includes several sales campaigns (release new items).
-    *   [ ] 用user_emb来搞？让testset也做一个click的train，然后学到的emb去predict buy。
+    *   [ ] **考虑时间也作为feature（可能需要先做个 EDA），数据描述里说：The training data is collected across three months and includes several sales campaigns (release new items).**
+    *   [ ] **用user_emb来搞？让testset也做一个click的train，然后学到的emb去predict buy。**
     *   [ ] 似乎一个user会有多条记录（3条？），然后用上面的思路来学user_emb
 
 *   模型：
 
     *   [x] Transformer（大概0.36 -> 0.365 的提升，还行，估计还能再升点，没继续训了，因为去搞multitask click了）
+        *   [ ] **Transformer 搞一个小一点的模型看看效果会不会下降**
     *   [ ] GNN（网易fuxi有发一篇paper做bundle recommendation 用gnn的，和这个场景有一丢丢类似）
     *   [x] 预测 click 数据，丰富了item之间的交互做 multitask（0.362->0.365； 加上augorder3：0.365 -> 0.368 左右）
+        *   [ ] **使得 click 的 neg sample 更合理（现在是随机，可能采集到正样本）**
+    *   [ ] 现在是分别预测buy和sess，然后两者合并输出；是否可以直接将两者合并，e2e 来 backpropagate优化？
+    *   [ ] ~~预测 sess 时，现在：1000，0100，0010，0001；改成：1000，0100，0110，0111；
+        incremental 的预测 sess（这个初步试验了一下，貌似没啥用）~~
 
 *   Loss：
 
-    -   [ ] reweight loss（4种行为）
+    -   [ ] reweight loss（4种行为）：
+        -   [x] [0.5, 1.0, 1.0, 0.5] weight，0.365 -> 0.388 提升显著（没augorder）
+    -   [ ] reweight pos and neg
 
 *   训得久一点：
 
