@@ -39,6 +39,7 @@
     *   [ ] GNN（网易fuxi有发一篇paper做bundle recommendation 用gnn的，和这个场景有一丢丢类似）
     *   [x] 预测 click 数据，丰富了item之间的交互做 multitask（0.362->0.365； 加上augorder3：0.365 -> 0.368 左右）
         *   [ ] **使得 click 的 neg sample 更合理（现在是随机，可能采集到正样本）**
+    *   [ ] DIN 的 elementwise attention
     *   [ ] 现在是分别预测buy和sess，然后两者合并输出；是否可以直接将两者合并，e2e 来 backpropagate优化？
     *   [ ] ~~预测 sess 时，现在：1000，0100，0010，0001；改成：1000，0100，0110，0111；
         incremental 的预测 sess（这个初步试验了一下，貌似没啥用）~~
@@ -49,9 +50,10 @@
         -   [x] [0.5, 1.0, 1.0, 0.5] weight，0.365 -> 0.388 提升显著（没augorder）
     -   [ ] reweight pos and neg
 
-*   训得久一点：
+*   trick：
 
     -   [x] 2epoch0.001adam -> 10epoch0.001adam+10epoch0.0001adam：0.33->0.36
+    -   [ ] batchsize调大？ lr调大？ 优化器？
 
 
 
