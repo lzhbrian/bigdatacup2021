@@ -2,7 +2,7 @@
 
 3rd place code (0.39224) of [IEEE BigData Cup 2021 Track1](https://www.kaggle.com/c/bigdata2021-rl-recsys/leaderboard)
 
-
+*   [Report](202109_bigdatacup_report.pdf) 
 
 *   [EDA](eda.md)
 

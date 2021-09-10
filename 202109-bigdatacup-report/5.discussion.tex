@@ -1,0 +1,24 @@
+\section{Discussion \& Limitation}
+
+
+\subsection{Discussion}
+
+
+%% Thing didn't work
+We have also tried several things that conceptually make sense but didn’t improve the score.
+% DIN
+Firstly, we tried an attention-like deep interest network \cite{din} to reweight user clicked items, however it didn't improve the final score.
+Given that we do not know how click behavior data is collected, we think that users might present different preference in the scenario where click data is collected. And thus making the model more complex in this aspect doesn't help.
+% user emb
+Secondly, we tried to add user embedding into the network yet encounter severe over-fitting in training. Adding mini-batch aware regularization \cite{din} can reduce over-fitting, however it still cannot make improvements to the final score.
+Due to the fact that one user only have one training entry, this result is not very surprising.
+% Timestamp embedding
+In addition, we also tried adding timestamp as a feature, however it also didn't help. We originally thought that weekends or holidays might affect user behaviors.
+
+
+% \chen{we can explain the above results}
+
+% limitation
+\subsection{Limitation}
+Due to limited time during competition, the ablation studies of each component isn't very rigorous and sufficient.
+Some of the method statements and decisions are based on semi-finished experimental results and subjective judgements.
