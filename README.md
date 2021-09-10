@@ -8,7 +8,7 @@
 
 
 
-The code corresponding to the best submission (0.39227) is [here](colab/20210824_bigdatacup_reweightloss_timefeat_useridemb.ipynb).
+The code corresponding to the best submission (0.39224) is [here](colab/20210824_bigdatacup_reweightloss_timefeat_useridemb.ipynb).
 
 
 
