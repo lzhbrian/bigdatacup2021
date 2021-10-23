@@ -1,8 +1,8 @@
-# README
+# Session-aware Item-combination Recommendation with Transformer Network
 
 2nd place (0.39224) code and report for [IEEE BigData Cup 2021 Track1](https://www.kaggle.com/c/bigdata2021-rl-recsys/leaderboard)
 
-*   [Report](202109_bigdatacup_report.pdf) 
+*   [Report](202110-bigdatacup-report.pdf) 
 
 *   [EDA](eda.md), [kaggle-notebook](kaggle-eda.ipynb)
 
