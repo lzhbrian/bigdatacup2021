@@ -1,0 +1,129 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+% \usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+% \usepackage{algorithmic}
+\usepackage{graphicx}
+%\usepackage{textcomp}
+\usepackage{xcolor}
+% \usepackage{ulem}
+\usepackage{makecell}
+\usepackage{booktabs} 
+%\usepackage{subfigure}
+\usepackage{subfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+%\usepackage{color}
+%\usepackage{amssymb}
+%\usepackage{mathrsfs}
+\usepackage[normalem]{ulem}
+%\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{multirow}
+%\usepackage[ruled,vlined]{algorithm2e}
+%\usepackage{algorithm2e}
+%\usepackage{ulem}
+\usepackage[nomargin,inline,marginclue,draft]{fixme}
+\usepackage{balance}
+%\usepackage{verbatim}
+%\usepackage{diagbox}
+\usepackage{changepage}
+
+
+% \usepackage[table,xcdraw]{xcolor}
+\usepackage{balance}
+\usepackage[breaklinks=true,bookmarks=false]{hyperref}
+\newcommand{\para}[1]{{\vspace{1pt} \bf \noindent #1 \hspace{10pt}}}
+\usepackage{fixme}
+\fxsetup{status=draft}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\@makecaption}
+  {\scshape}
+  {}
+  {}
+  {}
+\makeatother
+
+\newcommand{\chen}[1]{\footnote{+chen+: #1}}
+
+
+\begin{document}
+
+\title{Session-aware Item-combination Recommendation with Transformer Network}
+% *\\
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+% should not be used}
+% \thanks{Identify applicable funding agency here. If none, delete this.}
+% }
+
+\author{\IEEEauthorblockN{Tzu-Heng Lin}
+\IEEEauthorblockA{
+% \textit{dept. name of organization (of Aff.)} \\
+\textit{Peking University}\\
+lzhbrian@gmail.com}
+\and
+\IEEEauthorblockN{Chen Gao}
+\IEEEauthorblockA{
+\textit{Department of Electronic Engineering} \\
+\textit{Tsinghua University}\\
+chgao96@gmail.com}
+}
+
+
+
+\maketitle
+
+\begin{abstract}
+    In this paper, we detailedly describe our solution for the IEEE BigData Cup 2021: RL-based RecSys (Track 1: Item Combination Prediction)\footnote{https://www.kaggle.com/c/bigdata2021-rl-recsys/}.
+    We first conduct an exploratory data analysis on the dataset and then utilize the findings to design our framework.
+    Specifically, we use a \textbf{two-headed transformer-based network} to predict user feedback and unlocked sessions, along with the proposed \textbf{session-aware reweighted loss}, \textbf{multi-tasking with click behavior prediction}, and \textbf{randomness-in-session augmentation}.
+%   \chen{we can use two-three sentences to describe our method. It would be better if we can name it.}
+    In the final private leaderboard on Kaggle, our method ranked 2nd with a categorization accuracy of 0.39224.\footnote{Our code is available at https://github.com/lzhbrian/bigdatacup2021}
+\end{abstract}
+
+\begin{IEEEkeywords}
+recommender system, item combination prediction, transformer, loss reweighting
+\end{IEEEkeywords}
+
+
+% intro
+\input{1.intro}
+
+% EDA
+\input{2.eda}
+
+% method
+\input{3.method}
+
+% \newpage
+% things
+% \input{4.things}
+
+% discussion
+\input{5.discussion}
+
+% \newpage
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{ref}
+
+
+
+\end{document}

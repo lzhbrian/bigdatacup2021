@@ -1,0 +1,63 @@
+
+
+\section{Introduction} \label{sec:intro}
+
+
+
+The task of the IEEE BigData Cup 2021: RL-based RecSys (Track 1: Item Combination Prediction) \cite{kaggle} is to predict each user's purchasing feedback to nine exposed items, given this user's click history, portrait features, and items' features.
+The special setting in this task is that the nine items are grouped into three sessions. 
+The user can only unlock the subsequent session after he/she buys all three items in the current session.
+
+More formally, given a user $u$ (along with his/her clicking history $c_{u,1}, c_{u,2}, ...$, and some portrait features $f_{u,1}, f_{u,2}, ..., f_{u,10}$), and his/her nine exposed items $i_{u,1}, i_{u,2}, ..., i_{u,9}$ (along with some item features $f_{i,1}, f_{i,2}, ..., f_{i,6}$ for each item $i$), 
+the objective is to predict nine interactions $y_{u,1}, y_{u,2}, ..., y_{u,9} \in \{0,1\}$.
+Each one of the interactions indicates whether this user would buy the corresponding item or not. 
+In addition, in this scenario, the middle three items $i_{u,4}, i_{u,5}, i_{u,6}$ are not unlocked until the user has bought all of the first three items $i_{u,1}, i_{u,2}, i_{u,3}$, and similarly, the last three items $i_{u,7}, i_{u,8}, i_{u,9}$ are not unlocked until the user has bought all of the first six items $i_{u,1}, i_{u,2}, ..., i_{u,6}$ (\textit{c.f.} Figure \ref{fig:problemdef}). 
+% metric
+The evaluation metric for this task is the Categorization Accuracy measure, which is defined as follows,
+\begin{equation}
+    \textbf{accuracy} = \frac{1}{M} 
+    ~\overset{M}{\underset{u=1}{\sum}}  ~\overset{9}{\underset{j=1}{\prod}} 
+    ~[y_{u,j} = \hat{y}_{u,j}],
+\end{equation}
+where $M$ denotes the number of users, $y_{u,j}$ and $\hat{y}_{u,j}$ are the predicted and ground-truth interactions, and $[y_{u,j} = \hat{y}_{u,j}]$ is the \textit{Iverson bracket}.
+
+% challenging
+Overall speaking, this task is challenging in two aspects.
+\begin{itemize}
+    \item Firstly, the nine exposed items are correlated and treated differently by the users. We cannot simply apply a single traditional recommendation method to predict each interaction independently.
+    \item Secondly, with the given evaluation metric, it is required to correctly predict all of the nine interactions of a user, while partially correct predictions contribute nothing to the final score.
+\end{itemize}
+%
+
+% \begin{table}[t!]
+%     \centering
+%     \caption{Private Leaderboard on Kaggle}
+%     \begin{tabular}{c|c|c}
+%         rank & team name & score \\\hline
+%         1 & lovers (AIN and HGRU) & 0.42069 \\\hline
+%         \textbf{2} & \textbf{lzhbrian (ours)} & \textbf{0.39224} \\\hline
+%         3 & Tom\&Jerry (LightGBM) & 0.39157 \\
+%     \end{tabular}
+%     \label{tab:lb}
+% \end{table}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/problemdef.pdf}
+    \caption{Problem Setup. Each user is exposed to nine items simultaneously. However, the items are divided into three 3-length sessions. The user can only unlock the subsequent three items after he/she buys all three items in the current session.
+    We want to predict whether a user would buy the nine exposed items or not.}
+    \label{fig:problemdef}
+\end{figure}
+
+To overcome the above challenges, we propose a delicate two-headed transformer-based framework to predict both users' buying behavior and unlocked sessions.
+The unlocked session prediction can be used to refine unreasonable buy predictions.
+We further propose a randomness-in-session augmentation technique and a novel session-aware reweighted loss to address the unique characteristics in this scenario.
+Finally, a multi-tasking training procedure with click prediction is utilized to assist the learning of embedding layers.
+Extensive experiments and ablation studies have demonstrated the effectiveness of our method.
+
+% following
+In what follows, we will conduct an exploratory data analysis in Section \ref{sec:eda}, describe our proposed method in Section \ref{sec:method}, and finally conclude the paper with discussion and future works in Section \ref{sec:conclusion}.
+
+% \chen{input and output}
+
+

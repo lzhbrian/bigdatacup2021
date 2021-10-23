@@ -1,0 +1,24 @@
+\section{Conclusion} \label{sec:conclusion}
+
+
+% \subsection{Discussion}
+In this paper, we propose a framework for item combination prediction. Specifically, we propose several delicate designs to improve the performance, namely randomness-in-session augmentation, transformer backbone, two-headed prediction, session-aware loss reweighting, and multi-tasking with click prediction.
+Extensive experiments have proved the effectiveness of our framework.
+
+%% Thing didn't work
+We have also tried several things that conceptually make sense but did not improve the score.
+% DIN
+Firstly, we tried an attention-like deep interest network \cite{din} to reweight user clicked items, but however, it didn't improve the final score.
+Given that we do not know how click data is collected, we think that users might present different preferences in the scenario where click data is collected. And thus, making the model more complex in this aspect doesn't help.
+% user emb
+Secondly, we tried to add user embedding into the network yet encountered severe over-fitting in training. Adding mini-batch aware regularization \cite{din} can reduce over-fitting, but however, it still cannot make improvements to the final score.
+Due to the fact that most users only have one training entry, this result is not very surprising.
+% Timestamp embedding
+In addition, we tried adding timestamp as a feature, but however, it also didn't help. We originally thought that weekends or holidays might affect user behaviors.
+
+
+% \chen{we can explain the above results}
+
+% future work
+Future works shall include in-depth analysis and utilization with the actual meaning of user features, item features, and clicking data. It would also be interesting to investigate other network architectures that could address the multi-feedback item combination prediction scenario.
+Since our work does not introduce the model ensemble technique, it is also a promising direction for future works.

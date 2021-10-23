@@ -1,0 +1,256 @@
+\section{Method \& Experiments} \label{sec:method}
+
+\begin{table*}[t!]
+    \centering
+    \caption{Experimental results of different models (take G as an example, it is built on F with an additional design of augmentation). The numbers in this table are ablation studies after the competition. * means the settings of the best submission during competition. $\diamond$ means the settings are providing unstable yet higher scores.}
+    \begin{tabular}{l|c|c}
+         & validation & test \\\hline
+        \textbf{A}~~MLP basic model & 0.29169 & 0.33817 \\
+        \textbf{B}~~+ randomness-in-session augmentation (train) & 0.29965 & 0.35007 \\
+        \textbf{C}~~+ transformer backbone & 0.31140 & 0.36210 \\
+        \textbf{D}~~+ two-headed (buy and group) prediction & 0.31475 & 0.36258 \\
+        \textbf{E}~~+ session-aware loss reweighting & 0.33090 & 0.38355 \\
+        \textbf{F}~~+ multi-tasking with click prediction * & 0.33323 & 0.38805 \\
+        \textbf{G}~~+ randomness-in-session augmentation (inference) $\diamond$ & 0.33335 & 0.39161 \\
+    \end{tabular}
+    \label{tab:ablation}
+\end{table*}
+
+The overall structure of our method is shown in Fig. \ref{fig:net}. 
+In what follows, we will introduce each part of our framework.
+The ablation study results are shown in Table \ref{tab:ablation}.
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/net.pdf}
+    % \vspace{-2em}
+    \caption{Overall structure of our method.}
+    \label{fig:net}
+\end{figure*}
+
+\subsection{Network design}
+
+\para{MLP basic model (\textbf{Config-A})} 
+We start with a very simple basic network.
+The network takes the following inputs: user profile features, user clicked items' id and features, nine exposed target items' id and features.
+%
+These inputs are processed by their corresponding embedding layers, and further fed to a MLP module.
+%
+Then the network predicts whether the user will buy the nine exposed target items.
+%
+We propose this framework since the nine items' labels are correlated. For example, users might buy all of the first six items, only to unlock and buy subsequent items. Therefore, it is not suitable to predict the nine feedback independently, and we need to ensure the network is able to predict nine feedback simultaneously.
+%
+The training of the model is supervised by a vanilla binary cross entropy (BCE) loss on each item respectively as follows,
+\begin{equation}
+    \mathcal{L}_{\text{buy}} = \frac{1}{M} ~\overset{M}{\underset{u=1}{\sum}}
+    ~\overset{9}{\underset{j=1}{\sum}} 
+        ~\text{BCE}(\hat{y}_{u,j}, y_{u,j}),
+\end{equation}
+where $\hat{y}_{u,j}$ and $ y_{u,j}$ denote the ground-truth and predicted feedback between user $u$ and the exposed $j$-th item, respectively, and
+\begin{equation}
+\begin{aligned}
+    \text{BCE}(\hat{y}_{u,j}, y_{u,j}) = 
+        &- \hat{y}_{u,j} \log y_{u,j} \\
+        &- (1-\hat{y}_{u,j}) \log (1-y_{u,j})
+\end{aligned}
+\end{equation}
+is the binary cross entropy term for each one of the nine items.
+We set the embedding size to 16 here, and the MLP-structure is set to $\{$1440, 256, 64, 9$\}$. This very simple basic model can achieve 0.29169 on validation set, and 0.33817 on test set.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% aug, tta
+\para{Randomness-in-session augmentation (\textbf{Config-B}, \textbf{G})}
+To prevent over-fitting and make training more robust, we randomly shuffle items' orders within the same sessions during the training. 
+Note that in this scenario, users are not sensitive to the items' order within the same session. However, our network treats them with different parameters. So we propose to use this augmentation technique to alleviate this shortcoming.
+This strategy is also used for test time augmentation, where original prediction and predictions produced by shuffled inputs are averaged to produce the final results.
+In our experiments, augmentation in training (\textbf{Config-B}) increases the score from 0.29169 to 0.29965 on validation set and from 0.33817 to 0.35007 on test set.
+However, this proposed augmentation method in inference is not so stable and sometimes might do some harm to the score.
+In Table \ref{tab:ablation}, we are just reporting the result of one experiment (\textbf{Config-G}), which improves the score.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% transformer
+\para{Transformer backbone (\textbf{Config-C})}
+Instead of simple MLPs \cite{din, ncf}, we switch the backbone part into a transformer \cite{transformer}, as their self-attention mechanism is proved to be effective on capturing inter-relations between different features.
+\begin{equation}
+\begin{aligned}
+\mathbf{z}_{0} &=\left[x^{1} \mathbf{E} ; x^{2} \mathbf{E}; \cdots; x^{N} \mathbf{E}\right]+\mathbf{E}_{\text{pos}}, &  \\
+\mathbf{z}_{\ell} &=\operatorname{MSA}\left(\operatorname{LayerNorm}\left(\mathbf{z}_{\ell-1}\right)\right)+\mathbf{z}_{\ell-1}, & \ell=1 \ldots L \\
+\mathbf{z}_{\ell} &=\operatorname{MLP}\left(\operatorname{LayerNorm}\left(\mathbf{z}_{\ell}\right)\right)+\mathbf{z}_{\ell}, & \ell=1 \ldots L \\
+\mathbf{y} &=\operatorname{LayerNorm}\left(\mathbf{z}_{L}\right), &
+\end{aligned}
+\end{equation}
+where $x^{n}$ is the corresponding one-hot vector of features, $\mathbf{E} \in \mathbb{R}^{N \times D}, \mathbf{E}_{pos} \in \mathbb{R}^{N \times D}$, $N$ is the number of features, $D$ is the embedding size, $L$ is the number of transformer layers, and $\text{MSA}(\cdot)$ is the multi-head self attention.
+%
+We set the embedding size to 128, number of layers to 3, number of self-attention head to 4, and the sizes of $q$,$k$,$v$ in the self-attention module to 32, and MLP size to 64.
+%
+Using the transformer backbone (\textbf{Config-C}) can improve our score from 0.29965 to 0.31140, and from 0.35007 to 0.36210 on validation and test set, respectively.
+However, we do note that this improvement compared to \textbf{Config-B} might in part come from a larger embedding and network size. We didn't do that ablation study due to limited time.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% two head
+\para{Two-headed (buy and group) prediction (\textbf{Config-D})}
+One should notice that the above simple framework might introduce some invalid buy predictions that are impossible to happen in the real world.
+For example, the network might predict that the user buys two items, the 1st one and the 9th one. 
+However, this is impossible since the user has to buy all of the first 6 items in order to buy the 9th item.
+
+Thus, in addition to the buy prediction, we propose to also predict the group (as defined in Section \ref{sec:eda:buyanalysis}) of each user, which forms a two-headed prediction network, as shown in Fig. \ref{fig:net}(a).
+%
+This group prediction part is supervised by a cross entropy loss as follows,
+\begin{equation}
+    \mathcal{L}_{\text{group}} = \frac{1}{M} ~\overset{M}{\underset{u=1}{\sum}}
+    ~\overset{4}{\underset{j=1}{\sum}}
+    - \hat{g}_{u,j} \log g_{u,j},
+\end{equation}
+where $\mathbf{\hat{g}}_{u} \in \mathbb{R}^4$ is a one-hot ground-truth vector indicating which group user $u$ belongs to. Here $\mathbf{g}_u \in \mathbb{R}^4$ is the predicted group vector (after a \textit{softmax} layer).
+The loss is added with previous ones and back-propagated together as follows,
+\begin{equation}
+    \mathcal{L} = 
+    \lambda_{\text{buy}} \mathcal{L}_{\text{buy}} + 
+    \lambda_{\text{group}} \mathcal{L}_{\text{group}},
+\end{equation}
+where we set $\lambda_{\text{buy}}=0.8, \lambda_{\text{group}}=0.1$. 
+%
+After training, the predicted group vector $\mathbf{g}_u$ will be used to refine and fix the unreasonable predicted buying behavior of the nine exposed items $\mathbf{y}_{u} \in \mathbb{R}^{9}$ as follows,
+\small
+\begin{equation}\label{eqn:refine}
+    \mathbf{y}_{u} = 
+    \begin{cases}
+        [0,0,0, 0,0,0, 0,0,0] & \arg\underset{j}{\max}~\mathbf{g}_{u}=0\\
+        [y_{u,1},y_{u,2},y_{u,3}, 0,0,0, 0,0,0] & \arg\underset{j}{\max}~\mathbf{g}_{u}=1\\
+        [1,1,1, y_{u,4},y_{u,5},y_{u,6}, y_{u,7},y_{u,8},y_{u,9}] & \arg\underset{j}{\max}~\mathbf{g}_{u}=2\\
+        [1,1,1, 1,1,1, y_{u,7},y_{u,8},y_{u,9}] & \arg\underset{j}{\max}~\mathbf{g}_{u}=3.
+    \end{cases}
+\end{equation}
+\normalsize
+After refined using the group predictions, our score improves from 0.31140 to 0.31475 on validation set and from 0.36210 to 0.36258 and test set.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% reweight
+\para{Session-aware loss reweighting (\textbf{Config-E})}
+To better model users' buying behaviors, we classify the nine exposed items into four types (weak positive, strong positive, strong negative, weak negative) as shown in Fig. \ref{fig:reweightloss}.
+%
+% \chen{use itemize to rewrite this part}
+\begin{itemize}
+    \item For sessions before the last session user has unlocked, items should be treated as \textbf{weak positives}, as the user might buy these items only to unlock the later sessions.
+    \item For the last session user has unlocked, items should be treated as \textbf{strong positives} and \textbf{strong negatives}. As the user unlocked and stopped in this session, items bought or not bought should be classified as strong signals.
+    \item For later locked sessions, items should be treated as \textbf{weak negatives}, as users haven't unlocked these sessions, we should not assume too strong preferences on these items.
+\end{itemize}
+In practice, we assign different weights $\lambda_1, \lambda_2, \lambda_3, \lambda_4$ for the above 4 types of items. The formally defined loss can be written as follows,
+\small
+% \begin{figure*}
+\begin{equation}
+\begin{aligned}
+    &\mathcal{L}_{\text{buy-reweight}} = \frac{1}{M} ~\overset{M}{\underset{u=1}{\sum}} \\
+    % &\left\{
+        &\begin{cases}
+        ~\overset{9}{\underset{j=1}{\sum}} ~\lambda_4 \Gamma_{u,j}
+        & \mathbf{\hat{g}}_{u} = [1,0,0,0] \\
+        %
+        ~\overset{3}{\underset{j=1}{\sum}} ~\Lambda_{\lambda_2,\lambda_3,u,j} + 
+        ~\overset{9}{\underset{j=4}{\sum}} ~\lambda_4 \Gamma_{u,j}
+        & \mathbf{\hat{g}}_{u} = [0,1,0,0] \\
+        %
+        ~\overset{3}{\underset{j=1}{\sum}} ~\lambda_1 \Gamma_{u,j} + 
+        ~\overset{6}{\underset{j=4}{\sum}} ~\Lambda_{\lambda_2,\lambda_3,u,j} + 
+        ~\overset{9}{\underset{j=7}{\sum}} ~\lambda_4 \Gamma_{u,j}
+        & \mathbf{\hat{g}}_{u} = [0,0,1,0] \\
+        %
+        ~\overset{6}{\underset{j=1}{\sum}} ~\lambda_1 \Gamma_{u,j} + 
+        ~\overset{9}{\underset{j=7}{\sum}} ~\Lambda_{\lambda_2,\lambda_3,u,j}
+        & \mathbf{\hat{g}}_{u} = [0,0,0,1] \\
+        \end{cases},
+    % \right.
+\end{aligned}
+\end{equation}
+% \end{figure*}
+\normalsize
+where
+\begin{equation}
+\begin{aligned}
+    \Gamma_{u,j} = \text{BCE}(\hat{y}_{u,j}, y_{u,j}) = &- \hat{y}_{u,j} \log y_{u,j} \\
+    &- (1-\hat{y}_{u,j}) \log (1-y_{u,j}),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+    \Lambda_{\lambda_2,\lambda_3,u,j} =& ~\lambda_2~\hat{y}_{u,j}~\text{BCE}(\hat{y}_{u,j}, y_{u,j}) + \\
+    & ~\lambda_3~(1-\hat{y}_{u,j})~\text{BCE}(\hat{y}_{u,j}, y_{u,j}).
+\end{aligned}
+\end{equation}
+In our experiments, we replace the original $\mathcal{L}_{\text{buy}}$ with $\mathcal{L}_{\text{buy-reweight}}$, and set $\lambda_1 = 0.5, \lambda_2 = 1, \lambda_3 = 1, \lambda_4 = 0.5$.
+This design can greatly boost our score from 0.31475 to 0.33090 on validation set, and from 0.36258 to 0.38355 on test set.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/reweightloss.pdf}
+    \caption{Session-aware loss reweighting}
+    \label{fig:reweightloss}
+\end{figure}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% multitask click
+\para{Multi-tasking with click prediction (\textbf{Config-F})}
+Apart from the buy prediction network described in Fig. \ref{fig:net}(a), we propose to use another click prediction auxiliary network (Fig. \ref{fig:net}(b)) to assist the learning procedure.
+Note that the two networks share the same embedding layers.
+%
+The click prediction network takes the following inputs: user profile features, the previously clicked items' id and features, target items' id, and features. It is trained to predict whether the user will click the target item or not.
+The loss function is defined as follows,
+\begin{equation}
+    \mathcal{L}_{\text{click}} = \frac{1}{M} ~\overset{M}{\underset{u=1}{\sum}}
+        ~\text{BCE}(\hat{c}_{u}, c_{u}),
+\end{equation}
+where $\hat{c}_{u}, c_{u}$ are groundtruth and predicted feedback from user $u$ to his/her target item, and
+\begin{equation}
+\begin{aligned}
+    \text{BCE}(\hat{c}_{u}, c_{u}) = 
+        &- \hat{c}_{u} \log c_{u}\\
+        &- (1-\hat{c}_{u}) \log (1-c_{u}).
+\end{aligned}
+\end{equation}
+is the binary cross entropy term.
+The loss is added with previous ones and back-propagated together as follows,
+\begin{equation}
+    \mathcal{L} = 
+    \lambda_{\text{buy}} \mathcal{L}_{\text{buy-reweight}} + 
+    \lambda_{\text{group}} \mathcal{L}_{\text{group}} + 
+    \lambda_{\text{click}} \mathcal{L}_{\text{click}},
+\end{equation}
+where we set $\lambda_{\text{buy}}=0.8, \lambda_{\text{group}}=0.1, \lambda_{\text{click}}=0.1$, and use the same network hyper-parameters as the buy prediction network here.
+With the auxiliary click prediction network multi-tasking, our score is improved from 0.33090 to 0.33323 and 0.38355 to 0.38805 on the validation set and test set, respectively.
+%
+
+\para{Final submission} 
+Our final best submission during the competition (0.33687 on validation set, 0.39224 on test set) is achieved by \textbf{Config-F}, as shown in in Table \ref{tab:ablation}.
+That training instance shows much better performance than our ablation studies conducted after the competition. 
+However, these methods are still suffering from the performance variances with different random seeds, which may be caused by the scale of the dataset.
+We leave the efforts to address the issue of unstable performances as future work.
+% We mark this unstable training results as a future work for further studying.
+
+
+\subsection{Train/validation split by user portrait}
+Although the competition guidelines want us to recognize each buying entry as an individual user, we notice that there are entries with identical clicking histories and user portrait features (which means the same user produces two entries).
+Thus, it is more proper to split train and validation sets while taking the above observation into consideration.
+We propose to view all entries with identical user portrait features as the same user and use 85\% users as train set and the rest 15\% users as the validation set.
+This results in 243,775 and 16,312 entries for the train set and validation set, respectively.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Other settings}
+We use Adam \cite{adam} with default hyper-parameters in PyTorch \cite {pytorch}.
+The batch size is set to 32, and the learning rate is set to 1e-2 for ten epochs.
+Colab with one P100 GPU is used as our training platform, and each model takes about 2$\sim$3 hours to train.
+%
+Clicking data in the test set of both track-1 and track-2 are used during our training. 
+%
+Checkpoint with the best score on the validation set is used for evaluation.
+%
+All continuous features are discretized into bins.
+
+
