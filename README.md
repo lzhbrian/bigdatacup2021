@@ -4,7 +4,9 @@
 
 
 
-<img src="plot/net.png" alt="net" style="width:600px;" />
+<div align="center"><img src="plot/net.png" alt="net" style="width:600px;" /></div>
+
+
 
 <div align="center"><img src="plot/problemdef.png" alt="problemdef" style="width:300px;" /><img src="plot/reweightloss.png" alt="reweightloss" style="width:300px;" /></div>
 
