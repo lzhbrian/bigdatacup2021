@@ -1,0 +1,11 @@
+\section{Related work} \label{sec:relatedwork}
+% Recommender systems have been well studied in the literature.
+Recommender systems aim to filter information for users, which has become one kind of fundamental service in today's information platforms~\cite{resnick1997recommender}.
+Generally, from the perspective of real-world application, the recommender systems contain two stages, matching and ranking. 
+Recently, deep learning has become the state-of-the-art solution of recommender systems in both two stages~\cite{dlrs,wu2021survey,gao2021graph}.
+As for the matching stage, of which the mainstream methods are collaborative filtering~\cite{su2009survey}, which learns user interests from historical behaviors, deep neural networks methods~\cite{he2017neural}, or even graph neural networks~\cite{he2020lightgcn,wang2020disentangled}, achieve promising performance.
+As for the ranking stage, which is also known as click-through rate (CTR) prediction, deep learning-based models such as DeepFM with multi-layer perceptron~\cite{deepfm}, xDeepFM with compressed interaction network~\cite{lian2018xdeepfm}, DIN~\cite{din} with attention mechanisms, etc., are demonstrated effective in learning from complex features of users and items.
+
+In this work, we develop a method based on transformer network, a recent advance of neural network with extraordinary achievements in many areas, for capturing the complex behavior of users in the task of item combination recommendation. 
+
+

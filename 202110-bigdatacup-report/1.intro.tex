@@ -4,7 +4,7 @@
 
 
 
-The task of the IEEE BigData Cup 2021: RL-based RecSys (Track 1: Item Combination Prediction) \cite{kaggle} is to predict each user's purchasing feedback to nine exposed items, given this user's click history, portrait features, and items' features.
+The task of the IEEE BigData Cup 2021: RL-based RecSys (Track 1: Item Combination Prediction) \cite{2021RL4RS, kaggle} is to predict each user's purchasing feedback to nine exposed items, given this user's click history, portrait features, and items' features, which is similar to \textit{bundle recommendation}~\cite{chang2020bundle}.
 The special setting in this task is that the nine items are grouped into three sessions. 
 The user can only unlock the subsequent session after he/she buys all three items in the current session.
 
@@ -49,6 +49,9 @@ Overall speaking, this task is challenging in two aspects.
     \label{fig:problemdef}
 \end{figure}
 
+
+\IEEEpubidadjcol
+
 To overcome the above challenges, we propose a delicate two-headed transformer-based framework to predict both users' buying behavior and unlocked sessions.
 The unlocked session prediction can be used to refine unreasonable buy predictions.
 We further propose a randomness-in-session augmentation technique and a novel session-aware reweighted loss to address the unique characteristics in this scenario.
@@ -56,7 +59,7 @@ Finally, a multi-tasking training procedure with click prediction is utilized to
 Extensive experiments and ablation studies have demonstrated the effectiveness of our method.
 
 % following
-In what follows, we will conduct an exploratory data analysis in Section \ref{sec:eda}, describe our proposed method in Section \ref{sec:method}, and finally conclude the paper with discussion and future works in Section \ref{sec:conclusion}.
+In what follows, we will discuss related works in Section \ref{sec:relatedwork}, conduct an exploratory data analysis in Section \ref{sec:eda}, describe our proposed method in Section \ref{sec:method}, and finally conclude the paper with discussion and future works in Section \ref{sec:conclusion}.
 
 % \chen{input and output}
 

@@ -3,15 +3,15 @@
 \begin{table*}[t!]
     \centering
     \caption{Experimental results of different models (take G as an example, it is built on F with an additional design of augmentation). The numbers in this table are ablation studies after the competition. * means the settings of the best submission during competition. $\diamond$ means the settings are providing unstable yet higher scores.}
-    \begin{tabular}{l|c|c}
-         & validation & test \\\hline
+    \begin{tabular}{l|c|c} \hline
+        Model & validation & test \\\hline
         \textbf{A}~~MLP basic model & 0.29169 & 0.33817 \\
         \textbf{B}~~+ randomness-in-session augmentation (train) & 0.29965 & 0.35007 \\
         \textbf{C}~~+ transformer backbone & 0.31140 & 0.36210 \\
         \textbf{D}~~+ two-headed (buy and group) prediction & 0.31475 & 0.36258 \\
         \textbf{E}~~+ session-aware loss reweighting & 0.33090 & 0.38355 \\
         \textbf{F}~~+ multi-tasking with click prediction * & 0.33323 & 0.38805 \\
-        \textbf{G}~~+ randomness-in-session augmentation (inference) $\diamond$ & 0.33335 & 0.39161 \\
+        \textbf{G}~~+ randomness-in-session augmentation (inference) $\diamond$ & 0.33335 & 0.39161 \\\hline
     \end{tabular}
     \label{tab:ablation}
 \end{table*}
@@ -34,7 +34,7 @@ The ablation study results are shown in Table \ref{tab:ablation}.
 We start with a very simple basic network.
 The network takes the following inputs: user profile features, user clicked items' id and features, nine exposed target items' id and features.
 %
-These inputs are processed by their corresponding embedding layers, and further fed to a MLP module.
+These inputs are processed by their corresponding embedding layers, and further fed to an MLP module.
 %
 Then the network predicts whether the user will buy the nine exposed target items.
 %
@@ -145,7 +145,8 @@ In practice, we assign different weights $\lambda_1, \lambda_2, \lambda_3, \lamb
 % \begin{figure*}
 \begin{equation}
 \begin{aligned}
-    &\mathcal{L}_{\text{buy-reweight}} = \frac{1}{M} ~\overset{M}{\underset{u=1}{\sum}} \\
+\centering
+ &\quad \quad \quad \quad \quad  \quad \quad \quad     \mathcal{L}_{\text{buy-reweight}} = \frac{1}{M} ~\overset{M}{\underset{u=1}{\sum}} \\
     % &\left\{
         &\begin{cases}
         ~\overset{9}{\underset{j=1}{\sum}} ~\lambda_4 \Gamma_{u,j}
@@ -163,29 +164,34 @@ In practice, we assign different weights $\lambda_1, \lambda_2, \lambda_3, \lamb
         ~\overset{6}{\underset{j=1}{\sum}} ~\lambda_1 \Gamma_{u,j} + 
         ~\overset{9}{\underset{j=7}{\sum}} ~\Lambda_{\lambda_2,\lambda_3,u,j}
         & \mathbf{\hat{g}}_{u} = [0,0,0,1] \\
-        \end{cases},
+        \end{cases}, \\
     % \right.
 \end{aligned}
 \end{equation}
 % \end{figure*}
 \normalsize
-where
+where $\Gamma_{u,j}$ and $\Lambda_{\lambda_2,\lambda_3,u,j}$ denote losses for weak positive/negative items and strong positive/negative items, respectively, which are formulated as follows,
+% \begin{equation}
+% \footnotesize
+% \begin{aligned}
+%   & \Gamma_{u,j}  = \text{BCE}(\hat{y}_{u,j}, y_{u,j}) = - \hat{y}_{u,j} \log y_{u,j} 
+%   - (1-\hat{y}_{u,j}) \log (1-y_{u,j}), \\
+%   & \Lambda_{\lambda_2,\lambda_3,u,j}  =  ~\lambda_2~\hat{y}_{u,j}~\text{BCE}(\hat{y}_{u,j}, y_{u,j}) + 
+%     ~\lambda_3~(1-\hat{y}_{u,j})~\text{BCE}(\hat{y}_{u,j}, y_{u,j}).
+% \end{aligned}
+% \end{equation}
 \begin{equation}
+\footnotesize
 \begin{aligned}
-    \Gamma_{u,j} = \text{BCE}(\hat{y}_{u,j}, y_{u,j}) = &- \hat{y}_{u,j} \log y_{u,j} \\
-    &- (1-\hat{y}_{u,j}) \log (1-y_{u,j}),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-    \Lambda_{\lambda_2,\lambda_3,u,j} =& ~\lambda_2~\hat{y}_{u,j}~\text{BCE}(\hat{y}_{u,j}, y_{u,j}) + \\
-    & ~\lambda_3~(1-\hat{y}_{u,j})~\text{BCE}(\hat{y}_{u,j}, y_{u,j}).
+  \Gamma_{u,j} =& ~\text{BCE}(\hat{y}_{u,j}, y_{u,j})\\
+  \Lambda_{\lambda_2,\lambda_3,u,j} =&  ~\lambda_2~\hat{y}_{u,j}~\text{BCE}(\hat{y}_{u,j}, y_{u,j})+ \\
+  &~\lambda_3~(1-\hat{y}_{u,j})~\text{BCE}(\hat{y}_{u,j}, y_{u,j}).
 \end{aligned}
 \end{equation}
 In our experiments, we replace the original $\mathcal{L}_{\text{buy}}$ with $\mathcal{L}_{\text{buy-reweight}}$, and set $\lambda_1 = 0.5, \lambda_2 = 1, \lambda_3 = 1, \lambda_4 = 0.5$.
 This design can greatly boost our score from 0.31475 to 0.33090 on validation set, and from 0.36258 to 0.38355 on test set.
 
-\begin{figure}[htbp]
+\begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/reweightloss.pdf}
     \caption{Session-aware loss reweighting}
